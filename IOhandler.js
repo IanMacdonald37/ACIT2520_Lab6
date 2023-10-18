@@ -33,11 +33,13 @@ const unzip = (pathIn, pathOut) => {
  */
 const readDir = (dir) => {
   return new promise ((res, rej) => {
-    let names = []
-    fs.createReadStream(dir)
-    .on('data', (chunk) => {names.push(chunk);})
-    .on('error', (err) => {rej(err)})
-    .on('end', () => {res(names)})
+    fs.readdir(dir,/*withFileType: true,*/ (err, files) => {
+      if(err){
+        rej(err)
+      }else{
+        res(files)
+      }
+    })
   })
 };
 
