@@ -44,21 +44,27 @@ const readDir = (dir) => {
  * @return {promise}
  */
 const grayScale = (pathIn, pathOut) => {
-  transform = new PNG({})
-  fs.createReadStream(pathIn)
-  .pipe(transform)
-  .on("parsed", function () {
-    for (var y = 0; y < this.height; y++) {
-      for (var x = 0; x < this.width; x++) {
-        var idx = (this.width * y + x) << 2;
+  return makeGray = new Promise((res, rej) => {
+    transform = new PNG({})
+    fs.createReadStream(pathIn)
+    .on('error', (err) => {rej(err)})
+    .pipe(transform)
+    .on("parsed", function () {
+      for (var y = 0; y < this.height; y++) {
+        for (var x = 0; x < this.width; x++) {
+          var idx = (this.width * y + x) << 2;
 
-        // make grey
-        this.data[idx], this.data[idx + 1], this.data[idx + 2] = 
-        (this.data[idx]+this.data[idx + 1]+this.data[idx + 2])/3;
+          // make gray
+          this.data[idx], this.data[idx + 1], this.data[idx + 2] = 
+          (this.data[idx]+this.data[idx + 1]+this.data[idx + 2])/3;
+        }
       }
-    }
 
-    this.pack().pipe(fs.createWriteStream(pathOut));
+      this.pack().pipe(fs.createWriteStream(pathOut))
+      .on('finish', () => {res()})
+      .on('error', () => {rej(err)});
+
+    });
   });
 };
 
