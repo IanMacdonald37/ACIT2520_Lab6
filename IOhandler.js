@@ -32,7 +32,13 @@ const unzip = (pathIn, pathOut) => {
  * @return {promise}
  */
 const readDir = (dir) => {
-
+  return new promise ((res, rej) => {
+    let names = []
+    fs.createReadStream(dir)
+    .on('data', (chunk) => {names.push(chunk);})
+    .on('error', (err) => {rej(err)})
+    .on('end', () => {res(names)})
+  })
 };
 
 /**
